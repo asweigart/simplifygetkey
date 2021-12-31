@@ -6,6 +6,7 @@
 from __future__ import absolute_import, print_function
 from contextlib import contextmanager
 import codecs
+import locale
 import os
 import sys
 from .keynames import PLATFORM_KEYS
@@ -37,7 +38,7 @@ class Platform(object):
     def getkey(self, blocking=True):
         buffer = ''
         for c in self.getchars(blocking):
-            buffer += c
+            buffer += c.decode(encoding=locale.getpreferredencoding())
             if buffer not in self.keys.escapes:
                 break
 
