@@ -125,25 +125,9 @@ class OSReadWrapper(object):
 
 
 class PlatformWindows:
-    KEYS = 'windows'
-    INTERRUPTS = {'CTRL_C': KeyboardInterrupt}
-
-    def __init__(self, keys=None, interrupts=None, msvcrt=None):
-        keys = keys or self.KEYS
-
-        if isinstance(keys, str):
-            keys = PLATFORM_KEYS[keys]
-        self.key = self.keys = keys
-        if interrupts is None:
-            interrupts = self.INTERRUPTS
-        self.interrupts = {
-            self.keys.code(name): action
-            for name, action in interrupts.items()
-        }
-
-        if msvcrt is None:
-            import msvcrt
-        self.msvcrt = msvcrt
+    def __init__(self):
+        self.keys = PLATFORM_KEYS['windows']
+        self.interrupts = {self.keys.code('CTRL_C'): KeyboardInterrupt}
 
     def getkey(self, blocking=True):
         buffer = ''
@@ -167,9 +151,9 @@ class PlatformWindows:
         """Get characters on Windows."""
 
         if blocking:
-            yield self.msvcrt.getch()
-        while self.msvcrt.kbhit():
-            yield self.msvcrt.getch()
+            yield msvcrt.getch()
+        while msvcrt.kbhit():
+            yield msvcrt.getch()
 
     def getchar(self, blocking=True):
         for char in self.getchars(blocking):
@@ -200,6 +184,7 @@ if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
     import termios
     __platform = PlatformUnix()
 elif sys.platform.startswith('win32'):
+    import msvcrt
     __platform = PlatformWindows()
 elif sys.platform.startswith('cygwin'):
     __platform = windows_or_unix()
