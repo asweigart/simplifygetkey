@@ -24,19 +24,13 @@ class GetKeyException(Exception):
 
 
 class PlatformUnix:
-    INTERRUPTS = {'CTRL_C': KeyboardInterrupt}
-
-    def __init__(self, interrupts=None,
-                 stdin=None, select=None, tty=None, termios=None):
+    def __init__(self, select=None, tty=None, termios=None):
         self.keys = PLATFORM_KEYS['unix']
-        if interrupts is None:
-            interrupts = self.INTERRUPTS
+
         self.interrupts = {
-            self.keys.code(name): action
-            for name, action in interrupts.items()
+            self.keys.code('CTRL_C'): KeyboardInterrupt
         }
 
-        self.stdin = stdin or sys.stdin
         if not select:
             from select import select
         if not tty:
@@ -48,7 +42,7 @@ class PlatformUnix:
         self.termios = termios
 
         try:
-            self.__decoded_stream = OSReadWrapper(self.stdin)
+            self.__decoded_stream = OSReadWrapper(sys.stdin)
         except Exception as err:
             raise GetKeyException('Cannot use unix platform on non-file-like stream')
 
