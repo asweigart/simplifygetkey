@@ -55,7 +55,7 @@ class PlatformUnix:
     def getkey(self, blocking=True):
         buffer = ''
         for c in self.getchars(blocking):
-            buffer += c.decode(encoding=locale.getpreferredencoding())
+            buffer += c
             if buffer not in self.keys.escapes:
                 break
 
