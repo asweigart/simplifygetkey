@@ -1,13 +1,19 @@
 from __future__ import absolute_import, print_function
 import sys
-from .platforms import platform, PlatformError, PlatformInvalid
+from .platforms import GetKeyException, PlatformUnix, PlatformWindows, windows_or_unix
 
-try:
-    __platform = platform()
-except PlatformError as err:
-    print('Error initializing standard platform: {}'.format(err.args[0]),
-          file=sys.stderr)
-    __platform = PlatformInvalid()
+def platform():
+    if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+        return PlatformUnix()
+    elif sys.platform.startswith('win32'):
+        return PlatformWindows()
+    elif sys.platform.startswith('cygwin'):
+        return windows_or_unix()
+    else:
+        raise GetKeyException('Unknown platform {!r}'.format(sys.platform))
+
+
+__platform = platform()
 
 getkey = __platform.getkey
 keys = __platform.keys

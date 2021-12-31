@@ -12,7 +12,10 @@ import sys
 from .keynames import PLATFORM_KEYS
 
 
-class PlatformError(Exception):
+class GetKeyException(Exception):
+    """Raised by the code in this getkey module. If getkey ever raises
+    an exception that isn't GetKeyException, you can assume it's caused
+    by a bug in the getkey module."""
     pass
 
 
@@ -105,7 +108,7 @@ class PlatformUnix(Platform):
         try:
             self.__decoded_stream = OSReadWrapper(self.stdin)
         except Exception as err:
-            raise PlatformError('Cannot use unix platform on non-file-like stream')
+            raise GetKeyException('Cannot use unix platform on non-file-like stream')
 
     def fileno(self):
         return self.__decoded_stream.fileno()
@@ -185,32 +188,6 @@ class PlatformWindows(Platform):
             yield self.msvcrt.getch()
 
 
-class PlatformTest(Platform):
-    KEYS = 'unix'
-    INTERRUPTS = {}
-
-    def __init__(self, chars='', keys=None, interrupts=None):
-        super(PlatformTest, self).__init__(keys, interrupts)
-        self.chars = chars
-        self.index = 0
-
-    def getchar(self, blocking=True):
-        if self.index >= len(self.chars) and not blocking:
-            return ''
-        else:
-            char = self.chars[self.index]
-            self.index += 1
-            return char
-
-
-class PlatformInvalid(Platform):
-    KEYS = 'unix'
-    INTERRUPTS = {'CTRL_C': KeyboardInterrupt}
-
-    def getchar(self, blocking=True):
-        raise RuntimeError('Cannot getkey on invalid platform!')
-
-
 def windows_or_unix(*args, **kwargs):
     try:
         import msvcrt
@@ -218,22 +195,5 @@ def windows_or_unix(*args, **kwargs):
         return PlatformUnix(*args, **kwargs)
     else:
         return PlatformWindows(*args, **kwargs)
-
-
-PLATFORMS = [
-    ('linux', PlatformUnix),
-    ('darwin', PlatformUnix),
-    ('win32', PlatformWindows),
-    ('cygwin', windows_or_unix),
-]
-
-
-def platform(name=None, keys=None, interrupts=None):
-    name = name or sys.platform
-    for prefix, ctor in PLATFORMS:
-        if name.startswith(prefix):
-            return ctor(keys=keys, interrupts=interrupts)
-    else:
-        raise NotImplementedError('Unknown platform {!r}'.format(name))
 
 
