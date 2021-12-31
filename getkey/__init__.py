@@ -26,9 +26,7 @@ class GetKeyException(Exception):
 class PlatformUnix:
     def __init__(self):
         self.keys = PLATFORM_KEYS['unix']
-        self.interrupts = {
-            self.keys.code('CTRL_C'): KeyboardInterrupt
-        }
+        self.interrupts = {self.keys.code('CTRL_C'): KeyboardInterrupt}
 
         try:
             self.__decoded_stream = OSReadWrapper(sys.stdin)
@@ -168,16 +166,6 @@ class PlatformWindows:
             print('{} = {!r}'.format(name, code))
 
 
-def windows_or_unix(*args, **kwargs):
-    try:
-        import msvcrt
-    except ImportError:
-        return PlatformUnix(*args, **kwargs)
-    else:
-        return PlatformWindows(*args, **kwargs)
-
-
-
 if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
     import select
     import tty
@@ -187,7 +175,12 @@ elif sys.platform.startswith('win32'):
     import msvcrt
     __platform = PlatformWindows()
 elif sys.platform.startswith('cygwin'):
-    __platform = windows_or_unix()
+    try:
+        import msvcrt
+    except ImportError:
+        __platform = PlatformUnix(*args, **kwargs)
+    else:
+        __platform = PlatformWindows(*args, **kwargs)
 else:
     raise GetKeyException('Unknown platform {!r}'.format(sys.platform))
 
