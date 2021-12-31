@@ -74,12 +74,6 @@ class PlatformUnix(object):
             while select.select([self.fileno()], [], [], 0)[0]:
                 yield self.__decoded_stream.read(1)
 
-    def getchar(self, blocking=True):
-        for char in self.getchars(blocking):
-            return char
-        else:
-            return None
-
     def bang(self):
         while True:
             code = self.getkey(True)
@@ -143,12 +137,6 @@ class PlatformWindows(object):
             yield msvcrt.getch()
         while msvcrt.kbhit():
             yield msvcrt.getch()
-
-    def getchar(self, blocking=True):
-        for char in self.getchars(blocking):
-            return char
-        else:
-            return None
 
     def bang(self):
         while True:
