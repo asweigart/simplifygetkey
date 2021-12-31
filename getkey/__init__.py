@@ -24,24 +24,6 @@ class GetKeyException(Exception):
 
 
 class Platform(object):
-    def __init__(self, keys=None, interrupts=None):
-        keys = keys or self.KEYS
-
-        if isinstance(keys, str):
-            keys = PLATFORM_KEYS[keys]
-        self.key = self.keys = keys
-        if interrupts is None:
-            interrupts = self.INTERRUPTS
-        self.interrupts = {
-            self.keys.code(name): action
-            for name, action in interrupts.items()
-        }
-
-        assert(
-            self.__class__.getchar != Platform.getchar or
-            self.__class__.getchars != Platform.getchars
-        )
-
     def getkey(self, blocking=True):
         buffer = ''
         for c in self.getchars(blocking):
@@ -97,7 +79,18 @@ class PlatformUnix(Platform):
             tty (module): tty module
             termios (module): termios module
         """
-        super(PlatformUnix, self).__init__(keys, interrupts)
+        keys = keys or self.KEYS
+
+        if isinstance(keys, str):
+            keys = PLATFORM_KEYS[keys]
+        self.key = self.keys = keys
+        if interrupts is None:
+            interrupts = self.INTERRUPTS
+        self.interrupts = {
+            self.keys.code(name): action
+            for name, action in interrupts.items()
+        }
+
         self.stdin = stdin or sys.stdin
         if not select:
             from select import select
@@ -178,7 +171,18 @@ class PlatformWindows(Platform):
     INTERRUPTS = {'CTRL_C': KeyboardInterrupt}
 
     def __init__(self, keys=None, interrupts=None, msvcrt=None):
-        super(PlatformWindows, self).__init__(keys, interrupts)
+        keys = keys or self.KEYS
+
+        if isinstance(keys, str):
+            keys = PLATFORM_KEYS[keys]
+        self.key = self.keys = keys
+        if interrupts is None:
+            interrupts = self.INTERRUPTS
+        self.interrupts = {
+            self.keys.code(name): action
+            for name, action in interrupts.items()
+        }
+
         if msvcrt is None:
             import msvcrt
         self.msvcrt = msvcrt
