@@ -26,7 +26,6 @@ class GetKeyException(Exception):
 class PlatformUnix(object):
     def __init__(self):
         self.keys = PLATFORM_KEYS['unix']
-        self.interrupts = {self.keys.code('CTRL_C'): KeyboardInterrupt}
 
         try:
             self.__decoded_stream = OSReadWrapper()
@@ -41,14 +40,8 @@ class PlatformUnix(object):
                 break
 
         keycode = self.keys.canon(buffer)
-        if keycode in self.interrupts:
-            interrupt = self.interrupts[keycode]
-            if isinstance(interrupt, BaseException) or \
-                issubclass(interrupt, BaseException):
-                raise interrupt
-            else:
-                raise NotImplementedError('Unimplemented interrupt: {!r}'
-                                          .format(interrupt))
+        if keycode == '\x03':
+            raise KeyboardInterrupt
         return keycode
 
     def fileno(self):
@@ -104,7 +97,6 @@ class OSReadWrapper(object):
 class PlatformWindows(object):
     def __init__(self):
         self.keys = PLATFORM_KEYS['windows']
-        self.interrupts = {self.keys.code('CTRL_C'): KeyboardInterrupt}
 
     def getkey(self, blocking=True):
         buffer = ''
@@ -114,14 +106,8 @@ class PlatformWindows(object):
                 break
 
         keycode = self.keys.canon(buffer)
-        if keycode in self.interrupts:
-            interrupt = self.interrupts[keycode]
-            if isinstance(interrupt, BaseException) or \
-                issubclass(interrupt, BaseException):
-                raise interrupt
-            else:
-                raise NotImplementedError('Unimplemented interrupt: {!r}'
-                                          .format(interrupt))
+        if keycode == '\x03':
+            raise KeyboardInterrupt
         return keycode
 
     def getchars(self, blocking=True):
