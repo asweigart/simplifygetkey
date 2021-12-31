@@ -24,27 +24,11 @@ class GetKeyException(Exception):
 
 
 class PlatformUnix:
-    KEYS = 'unix'
     INTERRUPTS = {'CTRL_C': KeyboardInterrupt}
 
-    def __init__(self, keys=None, interrupts=None,
+    def __init__(self, interrupts=None,
                  stdin=None, select=None, tty=None, termios=None):
-        """Make Unix Platform object.
-
-        Arguments:
-            keys (Keys): Keys object to use for escapes & names.
-            interrupts (dict): Map of keys to interrupt actions
-                (Ctrl-C -> KeyboardInterrupt by default)
-            stdin (file descriptor): file object to use (stdin by default)
-            select (callable): select function (select.select by default)
-            tty (module): tty module
-            termios (module): termios module
-        """
-        keys = keys or self.KEYS
-
-        if isinstance(keys, str):
-            keys = PLATFORM_KEYS[keys]
-        self.key = self.keys = keys
+        self.keys = PLATFORM_KEYS['unix']
         if interrupts is None:
             interrupts = self.INTERRUPTS
         self.interrupts = {
