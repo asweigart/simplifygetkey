@@ -220,75 +220,6 @@ class UnicodeKeys(object):
     START_OF_HEADING = chr(0x01)
 
 
-class JargonKeys(object):
-    BANG = '!'
-    SHRIEK = '!'
-    DOUBLE_QUOTE = '"'
-    QUOTE = '"'
-    NUMBER_SIGN = '#'
-    SHARP = '#'
-    OCTOTHORPE = '#'
-    BUCK = '$'
-    CASH = '$'
-    STRING = '$'
-    MOD = '%'
-    GRAPES = '%'
-    AMPERSAND = '&'
-    AMP = '&'
-    AND_SIGN = '&'
-    APOSTROPHE = '\''
-    PRIME = '\''
-    TICK = '\''
-    STAR = '*'
-    SPLAT = '*'
-    GLOB = '*'
-    ADD = '+'
-
-
-class IntercalKeys(object):
-    SPOT = '.'
-    TWO_SPOT = ':'
-    TAIL = ','
-    HYBRID = ';'
-    MESH = '#'
-    HALF_MESH = '='
-    SPARK = '\''
-    BACKSPARK = '`'
-    WOW = '!'
-    WHAT = '?'
-    RABBIT_EARS = '"'
-    # RABBIT is `"` over `.`
-    SPIKE = '|'
-    DOUBLE_OH_SEVEN = '%'
-    WORM = '-'
-    ANGLE = '<'
-    RIGHT_ANGLE = '>'
-    WAX = '('
-    WANE = ')'
-    U_TURN = '['
-    U_TURN_BACK = ']'
-    EMBRACE = '{'
-    BRACELET = '}'
-    SPLAT = '*'
-    AMPERSAND = '&'
-    V = 'V'
-    BOOK = 'V'
-    # BOOKWORM is `-` over `V`
-    BIG_MONEY = '$'
-    # CHANGE is cent sign
-    SQUIGGLE = '~'
-    FLAT_WORM = '_'
-    # OVERLINE is line on top
-    INTERSECTION = '+'
-    SLAT = '/'
-    BACKSLAT = '\\'
-    WHIRLPOOL = '@'
-    # HOOKWORK is logical NOT symbol
-    SHARK = '^'
-    SHARKFIN = '^'
-    # BLOTCH is several characters smashed on top of each other
-
-
 class VT100StandardModeKeys(object):
     # http://www.braun-home.net/michael/mbedit/info/misc/VT100_commands.htm
     # http://www.ccs.neu.edu/research/gpc/MSim/vona/terminal/VT100_Escape_Codes.html
@@ -628,16 +559,12 @@ unix_keys = Keys([
     AsciiKeys(),
     ControlKeys(),
     UnicodeAsciiKeys(),
-    JargonKeys(),
-    IntercalKeys()
 ])
 windows_keys = Keys([
     WindowsKeys(),
     AsciiKeys(),
     ControlKeys(),
     UnicodeAsciiKeys(),
-    JargonKeys(),
-    IntercalKeys()
 ])
 
 
