@@ -29,7 +29,7 @@ class PlatformUnix:
         self.interrupts = {self.keys.code('CTRL_C'): KeyboardInterrupt}
 
         try:
-            self.__decoded_stream = OSReadWrapper(sys.stdin)
+            self.__decoded_stream = OSReadWrapper()
         except Exception as err:
             raise GetKeyException('Cannot use unix platform on non-file-like stream')
 
@@ -96,29 +96,20 @@ class OSReadWrapper(object):
     python's stdin has the fileno & encoding attached to it, so we can
     just use that.
     """
-    def __init__(self, stream, encoding=None):
-        """Construct os.read wrapper.
-
-        Arguments:
-            stream (file object): File object to read.
-            encoding (str): Encoding to use (gets from stream by default)
-        """
-        self.__stream = stream
-        self.__fd = stream.fileno()
-        self.encoding = encoding or stream.encoding
-        self.__decoder = codecs.getincrementaldecoder(self.encoding)()
+    def __init__(self):
+        self.__decoder = codecs.getincrementaldecoder(sys.stdin.encoding)()
 
     def fileno(self):
-        return self.__fd
+        return sys.stdin.fileno()
 
     @property
     def buffer(self):
-        return self.__stream.buffer
+        return sys.stdin.buffer
 
     def read(self, chars):
         buffer = ''
         while len(buffer) < chars:
-            buffer += self.__decoder.decode(os.read(self.__fd, 1))
+            buffer += self.__decoder.decode(os.read(sys.stdin.fileno(), 1))
         return buffer
 
 
