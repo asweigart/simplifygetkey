@@ -23,46 +23,7 @@ class GetKeyException(Exception):
     pass
 
 
-class Platform(object):
-    def getkey(self, blocking=True):
-        buffer = ''
-        for c in self.getchars(blocking):
-            buffer += c.decode(encoding=locale.getpreferredencoding())
-            if buffer not in self.keys.escapes:
-                break
-
-        keycode = self.keys.canon(buffer)
-        if keycode in self.interrupts:
-            interrupt = self.interrupts[keycode]
-            if isinstance(interrupt, BaseException) or \
-                issubclass(interrupt, BaseException):
-                raise interrupt
-            else:
-                raise NotImplementedError('Unimplemented interrupt: {!r}'
-                                          .format(interrupt))
-        return keycode
-
-    def bang(self):
-        while True:
-            code = self.getkey(True)
-            name = self.keys.name(code) or '???'
-            print('{} = {!r}'.format(name, code))
-
-    # You MUST override at least one of the following
-    def getchars(self, blocking=True):
-        char = self.getchar(blocking)
-        while char:
-            yield char
-            char = self.getchar(False)
-
-    def getchar(self, blocking=True):
-        for char in self.getchars(blocking):
-            return char
-        else:
-            return None
-
-
-class PlatformUnix(Platform):
+class PlatformUnix:
     KEYS = 'unix'
     INTERRUPTS = {'CTRL_C': KeyboardInterrupt}
 
@@ -107,6 +68,24 @@ class PlatformUnix(Platform):
         except Exception as err:
             raise GetKeyException('Cannot use unix platform on non-file-like stream')
 
+    def getkey(self, blocking=True):
+        buffer = ''
+        for c in self.getchars(blocking):
+            buffer += c.decode(encoding=locale.getpreferredencoding())
+            if buffer not in self.keys.escapes:
+                break
+
+        keycode = self.keys.canon(buffer)
+        if keycode in self.interrupts:
+            interrupt = self.interrupts[keycode]
+            if isinstance(interrupt, BaseException) or \
+                issubclass(interrupt, BaseException):
+                raise interrupt
+            else:
+                raise NotImplementedError('Unimplemented interrupt: {!r}'
+                                          .format(interrupt))
+        return keycode
+
     def fileno(self):
         return self.__decoded_stream.fileno()
 
@@ -129,6 +108,18 @@ class PlatformUnix(Platform):
                 yield self.__decoded_stream.read(1)
             while self.select([self.fileno()], [], [], 0)[0]:
                 yield self.__decoded_stream.read(1)
+
+    def getchar(self, blocking=True):
+        for char in self.getchars(blocking):
+            return char
+        else:
+            return None
+
+    def bang(self):
+        while True:
+            code = self.getkey(True)
+            name = self.keys.name(code) or '???'
+            print('{} = {!r}'.format(name, code))
 
 
 class OSReadWrapper(object):
@@ -166,7 +157,7 @@ class OSReadWrapper(object):
         return buffer
 
 
-class PlatformWindows(Platform):
+class PlatformWindows:
     KEYS = 'windows'
     INTERRUPTS = {'CTRL_C': KeyboardInterrupt}
 
@@ -187,6 +178,24 @@ class PlatformWindows(Platform):
             import msvcrt
         self.msvcrt = msvcrt
 
+    def getkey(self, blocking=True):
+        buffer = ''
+        for c in self.getchars(blocking):
+            buffer += c.decode(encoding=locale.getpreferredencoding())
+            if buffer not in self.keys.escapes:
+                break
+
+        keycode = self.keys.canon(buffer)
+        if keycode in self.interrupts:
+            interrupt = self.interrupts[keycode]
+            if isinstance(interrupt, BaseException) or \
+                issubclass(interrupt, BaseException):
+                raise interrupt
+            else:
+                raise NotImplementedError('Unimplemented interrupt: {!r}'
+                                          .format(interrupt))
+        return keycode
+
     def getchars(self, blocking=True):
         """Get characters on Windows."""
 
@@ -194,6 +203,18 @@ class PlatformWindows(Platform):
             yield self.msvcrt.getch()
         while self.msvcrt.kbhit():
             yield self.msvcrt.getch()
+
+    def getchar(self, blocking=True):
+        for char in self.getchars(blocking):
+            return char
+        else:
+            return None
+
+    def bang(self):
+        while True:
+            code = self.getkey(True)
+            name = self.keys.name(code) or '???'
+            print('{} = {!r}'.format(name, code))
 
 
 def windows_or_unix(*args, **kwargs):
