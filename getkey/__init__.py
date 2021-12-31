@@ -23,7 +23,7 @@ class GetKeyException(Exception):
     pass
 
 
-class PlatformUnix:
+class PlatformUnix(object):
     def __init__(self):
         self.keys = PLATFORM_KEYS['unix']
         self.interrupts = {self.keys.code('CTRL_C'): KeyboardInterrupt}
@@ -113,7 +113,7 @@ class OSReadWrapper(object):
         return buffer
 
 
-class PlatformWindows:
+class PlatformWindows(object):
     def __init__(self):
         self.keys = PLATFORM_KEYS['windows']
         self.interrupts = {self.keys.code('CTRL_C'): KeyboardInterrupt}
