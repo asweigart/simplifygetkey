@@ -74,12 +74,6 @@ class PlatformUnix(object):
             while select.select([self.fileno()], [], [], 0)[0]:
                 yield self.__decoded_stream.read(1)
 
-    def bang(self):
-        while True:
-            code = self.getkey(True)
-            name = self.keys.name(code) or '???'
-            print('{} = {!r}'.format(name, code))
-
 
 class OSReadWrapper(object):
     """Wrap os.read binary input with encoding in standard stream interface.
@@ -138,12 +132,6 @@ class PlatformWindows(object):
         while msvcrt.kbhit():
             yield msvcrt.getch()
 
-    def bang(self):
-        while True:
-            code = self.getkey(True)
-            name = self.keys.name(code) or '???'
-            print('{} = {!r}'.format(name, code))
-
 
 if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
     import select
@@ -165,6 +153,6 @@ else:
 
 getkey = __platform.getkey
 keys = __platform.keys
-bang = __platform.bang
+
 
 
