@@ -24,22 +24,11 @@ class GetKeyException(Exception):
 
 
 class PlatformUnix:
-    def __init__(self, select=None, tty=None, termios=None):
+    def __init__(self):
         self.keys = PLATFORM_KEYS['unix']
-
         self.interrupts = {
             self.keys.code('CTRL_C'): KeyboardInterrupt
         }
-
-        if not select:
-            from select import select
-        if not tty:
-            import tty
-        if not termios:
-            import termios
-        self.select = select
-        self.tty = tty
-        self.termios = termios
 
         try:
             self.__decoded_stream = OSReadWrapper(sys.stdin)
@@ -70,13 +59,13 @@ class PlatformUnix:
     @contextmanager
     def context(self):
         fd = self.fileno()
-        old_settings = self.termios.tcgetattr(fd)
-        self.tty.setcbreak(fd)
+        old_settings = termios.tcgetattr(fd)
+        tty.setcbreak(fd)
         try:
             yield
         finally:
-            self.termios.tcsetattr(
-                fd, self.termios.TCSADRAIN, old_settings
+            termios.tcsetattr(
+                fd, termios.TCSADRAIN, old_settings
             )
 
     def getchars(self, blocking=True):
@@ -84,7 +73,7 @@ class PlatformUnix:
         with self.context():
             if blocking:
                 yield self.__decoded_stream.read(1)
-            while self.select([self.fileno()], [], [], 0)[0]:
+            while select.select([self.fileno()], [], [], 0)[0]:
                 yield self.__decoded_stream.read(1)
 
     def getchar(self, blocking=True):
@@ -206,6 +195,9 @@ def windows_or_unix(*args, **kwargs):
 
 
 if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+    import select
+    import tty
+    import termios
     __platform = PlatformUnix()
 elif sys.platform.startswith('win32'):
     __platform = PlatformWindows()
